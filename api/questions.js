@@ -1,9 +1,9 @@
 // Vercel Serverless Function for questions API
-// Using Vercel KV for persistent storage
+// Using Vercel Edge Config for persistent storage
 
-import { kv } from '@vercel/kv';
+import { get } from '@vercel/edge-config';
 
-const QUESTIONS_KEY = 'game_questions';
+const QUESTIONS_KEY = 'questions';
 
 // Default questions
 const defaultQuestions = [
@@ -47,30 +47,29 @@ const defaultQuestions = [
   "Ich habe noch nie bei einer Videokonferenz das Mikrofon vergessen auszuschalten"
 ];
 
+// Edge Config is read-only, so we'll use an in-memory store for user-added questions
+let userQuestions = [];
+
 async function getQuestions() {
   try {
-    let questions = await kv.get(QUESTIONS_KEY);
-    if (!questions || !Array.isArray(questions) || questions.length === 0) {
-      // Initialize with default questions
-      await kv.set(QUESTIONS_KEY, defaultQuestions);
-      questions = defaultQuestions;
+    // Try to get questions from Edge Config
+    const configQuestions = await get(QUESTIONS_KEY);
+    if (configQuestions && Array.isArray(configQuestions)) {
+      return [...configQuestions, ...userQuestions];
     }
-    return questions;
   } catch (error) {
-    console.error('KV Error:', error);
-    // Fallback to default questions if KV is not available
-    return defaultQuestions;
+    console.error('Edge Config Error:', error);
   }
+  // Fallback to default questions + user questions
+  return [...defaultQuestions, ...userQuestions];
 }
 
 async function saveQuestions(questions) {
-  try {
-    await kv.set(QUESTIONS_KEY, questions);
-    return true;
-  } catch (error) {
-    console.error('KV Save Error:', error);
-    return false;
-  }
+  // Edge Config is read-only from the API
+  // We store user-added questions in memory
+  const baseQuestions = defaultQuestions.length;
+  userQuestions = questions.slice(baseQuestions);
+  return true;
 }
 
 export default async function handler(req, res) {
