@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(__dirname)); // Serve all files from root
 
 // In-memory storage for questions
 let questions = [

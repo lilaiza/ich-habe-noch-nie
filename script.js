@@ -3,10 +3,25 @@ let players = [];
 let usedQuestions = [];
 let allQuestions = [];
 let gameActive = false;
+let currentQuestionIndex = -1;
+let questionHistory = [];
 
 // Initialize
 async function init() {
     await loadQuestions();
+    
+    // Add keyboard listener
+    document.addEventListener('keydown', (e) => {
+        if (!gameActive) return;
+        
+        if (e.code === 'Space' || e.code === 'ArrowRight' || e.code === 'Enter') {
+            e.preventDefault();
+            getNextQuestion();
+        } else if (e.code === 'ArrowLeft') {
+            e.preventDefault();
+            getPreviousQuestion();
+        }
+    });
 }
 
 // Load questions from server
@@ -87,6 +102,7 @@ function toggleLife(playerIndex, lifeIndex) {
     if (!gameActive) return;
 
     const player = players[playerIndex];
+    const previousLives = player.lives;
     
     // Toggle between full lives and reduced lives
     if (lifeIndex < player.lives) {
@@ -95,6 +111,14 @@ function toggleLife(playerIndex, lifeIndex) {
     } else if (lifeIndex === player.lives && player.lives < 3) {
         // Clicking on first lost heart - restore one
         player.lives = lifeIndex + 1;
+    }
+
+    // Add flash red effect if life was lost
+    if (player.lives < previousLives) {
+        const playerCards = document.querySelectorAll('#playersDisplay > div');
+        const playerCard = playerCards[playerIndex];
+        playerCard.classList.add('flash-red');
+        setTimeout(() => playerCard.classList.remove('flash-red'), 500);
     }
 
     renderPlayers();
@@ -110,6 +134,7 @@ async function getNextQuestion() {
     // Check if all questions have been used
     if (usedQuestions.length >= allQuestions.length) {
         usedQuestions = [];
+        questionHistory = [];
     }
 
     // Get available questions
@@ -126,9 +151,36 @@ async function getNextQuestion() {
     const originalIndex = allQuestions.indexOf(selectedQuestion);
     
     usedQuestions.push(originalIndex);
+    currentQuestionIndex = originalIndex;
+    questionHistory.push(originalIndex);
 
-    // Display question
-    document.getElementById('questionText').textContent = selectedQuestion;
+    // Display question with flip animation
+    const questionEl = document.getElementById('questionText');
+    questionEl.classList.remove('flip-animation');
+    void questionEl.offsetWidth; // Trigger reflow
+    questionEl.classList.add('flip-animation');
+    questionEl.textContent = selectedQuestion;
+}
+
+// Get previous question
+function getPreviousQuestion() {
+    if (!gameActive || questionHistory.length < 2) {
+        return; // No previous question available
+    }
+
+    // Remove current question from history
+    questionHistory.pop();
+    
+    // Get previous question
+    const previousIndex = questionHistory[questionHistory.length - 1];
+    currentQuestionIndex = previousIndex;
+
+    // Display previous question with flip animation
+    const questionEl = document.getElementById('questionText');
+    questionEl.classList.remove('flip-animation');
+    void questionEl.offsetWidth; // Trigger reflow
+    questionEl.classList.add('flip-animation');
+    questionEl.textContent = allQuestions[previousIndex];
 }
 
 // Check game over
@@ -137,6 +189,32 @@ function checkGameOver() {
 
     if (activePlayers.length <= 1 && gameActive) {
         gameActive = false;
+        
+        // Trigger confetti!
+        if (activePlayers.length === 1) {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#009999', '#00cccc', '#ffd700', '#ffffff']
+            });
+            
+            // Extra confetti burst
+            setTimeout(() => {
+                confetti({
+                    particleCount: 50,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 }
+                });
+                confetti({
+                    particleCount: 50,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 }
+                });
+            }, 250);
+        }
         
         // Show game over
         document.getElementById('gameSection').classList.add('hidden');
@@ -155,6 +233,8 @@ function checkGameOver() {
 function resetGame() {
     players = [];
     usedQuestions = [];
+    questionHistory = [];
+    currentQuestionIndex = -1;
     gameActive = false;
 
     document.getElementById('gameSection').classList.add('hidden');

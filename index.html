@@ -26,7 +26,52 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        
+        /* Flip animation for questions */
+        @keyframes flipIn {
+            from {
+                transform: perspective(400px) rotateY(90deg);
+                opacity: 0;
+            }
+            to {
+                transform: perspective(400px) rotateY(0deg);
+                opacity: 1;
+            }
+        }
+        
+        .flip-animation {
+            animation: flipIn 0.6s ease-out;
+        }
+        
+        /* Red flash animation - más visible */
+        @keyframes flashRed {
+            0% { 
+                background-color: transparent; 
+                transform: scale(1);
+            }
+            50% { 
+                background-color: rgba(239, 68, 68, 0.6); 
+                transform: scale(1.05);
+            }
+            100% { 
+                background-color: transparent; 
+                transform: scale(1);
+            }
+        }
+        
+        .flash-red {
+            animation: flashRed 0.6s ease-in-out;
+        }
+        
+        /* Fijar altura mínima para evitar scroll durante animación */
+        .question-container {
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body class="bg-gradient-to-br from-siemens-petrol to-siemens-dark min-h-screen flex items-center justify-center p-4">
     
@@ -61,18 +106,27 @@
 
         <!-- Question Card -->
         <div class="mb-8">
-            <div class="bg-white rounded-3xl p-12 shadow-2xl min-h-[300px] flex items-center justify-center">
+            <div class="bg-white rounded-3xl p-12 shadow-2xl question-container">
                 <p id="questionText" class="text-siemens-dark text-3xl md:text-5xl font-black text-center leading-tight">
                     Drücke den Button
                 </p>
             </div>
         </div>
 
-        <!-- Next Button -->
-        <button onclick="getNextQuestion()" 
-            class="w-full bg-white text-siemens-dark py-6 rounded-2xl font-black text-2xl hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-2xl mb-4">
-            NÄCHSTE FRAGE
-        </button>
+        <!-- Navigation Buttons -->
+        <div class="flex gap-4 mb-4">
+            <button onclick="getPreviousQuestion()" 
+                class="bg-white/20 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-white/30 transition-all flex items-center gap-2">
+                <span>←</span> Vorherige
+            </button>
+            <button onclick="getNextQuestion()" 
+                class="flex-1 bg-white text-siemens-dark py-6 rounded-2xl font-black text-2xl hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-2xl">
+                <div class="flex items-center justify-center gap-2">
+                    <span>NÄCHSTE FRAGE</span>
+                    <span class="text-sm font-semibold opacity-60">(Leertaste)</span>
+                </div>
+            </button>
+        </div>
 
         <button onclick="resetGame()" 
             class="w-full bg-white/20 text-white py-3 rounded-xl font-semibold text-sm hover:bg-white/30 transition-all">
