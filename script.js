@@ -41,6 +41,8 @@ function startGame() {
     const player2Name = document.getElementById('player2').value.trim();
     const player3Name = document.getElementById('player3').value.trim();
     const player4Name = document.getElementById('player4').value.trim();
+    const player5Name = document.getElementById('player5').value.trim();
+    const player6Name = document.getElementById('player6').value.trim();
 
     if (!player1Name || !player2Name) {
         alert('Mindestens 2 Spieler erforderlich!');
@@ -53,6 +55,8 @@ function startGame() {
     if (player2Name) players.push({ name: player2Name, lives: 3 });
     if (player3Name) players.push({ name: player3Name, lives: 3 });
     if (player4Name) players.push({ name: player4Name, lives: 3 });
+    if (player5Name) players.push({ name: player5Name, lives: 3 });
+    if (player6Name) players.push({ name: player6Name, lives: 3 });
 
     gameActive = true;
     usedQuestions = [];
@@ -240,6 +244,8 @@ function resetGame() {
     document.getElementById('player2').value = '';
     document.getElementById('player3').value = '';
     document.getElementById('player4').value = '';
+    document.getElementById('player5').value = '';
+    document.getElementById('player6').value = '';
     document.getElementById('questionText').textContent = 'Drücke den Button';
 }
 
