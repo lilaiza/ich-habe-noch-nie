@@ -65,10 +65,17 @@
         
         /* Fijar altura mínima para evitar scroll durante animación */
         .question-container {
-            min-height: 300px;
+            min-height: 400px;
+            max-height: 400px;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+        }
+        
+        #questionText {
+            max-height: 100%;
+            overflow-y: auto;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
