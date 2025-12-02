@@ -2,10 +2,10 @@
   "name": "ich-habe-noch-nie",
   "version": "1.0.0",
   "description": "Ich habe noch nie Spiel für Siemens Weihnachtsfeier",
-  "main": "server.js",
+  "main": "api/questions.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
+    "start": "node server.cjs",
     "dev": "vercel dev"
   },
   "keywords": ["game", "party"],

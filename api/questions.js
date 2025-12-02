@@ -3,10 +3,17 @@
 
 import { Redis } from '@upstash/redis';
 
-const redis = new Redis({
-  url: process.env.KV_REST_API_URL,
-  token: process.env.KV_REST_API_TOKEN,
-});
+let redis;
+try {
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    redis = new Redis({
+      url: process.env.KV_REST_API_URL,
+      token: process.env.KV_REST_API_TOKEN,
+    });
+  }
+} catch (error) {
+  console.error('Redis initialization error:', error);
+}
 
 const QUESTIONS_KEY = 'game_questions';
 
@@ -54,28 +61,32 @@ const defaultQuestions = [
 
 async function getQuestions() {
   try {
-    let questions = await redis.get(QUESTIONS_KEY);
-    if (!questions || !Array.isArray(questions) || questions.length === 0) {
-      // Initialize with default questions
-      await redis.set(QUESTIONS_KEY, defaultQuestions);
-      questions = defaultQuestions;
+    if (redis) {
+      let questions = await redis.get(QUESTIONS_KEY);
+      if (!questions || !Array.isArray(questions) || questions.length === 0) {
+        // Initialize with default questions
+        await redis.set(QUESTIONS_KEY, defaultQuestions);
+        questions = defaultQuestions;
+      }
+      return questions;
     }
-    return questions;
   } catch (error) {
     console.error('Redis Error:', error);
-    // Fallback to default questions if Redis is not available
-    return defaultQuestions;
   }
+  // Fallback to default questions if Redis is not available
+  return defaultQuestions;
 }
 
 async function saveQuestions(questions) {
   try {
-    await redis.set(QUESTIONS_KEY, questions);
-    return true;
+    if (redis) {
+      await redis.set(QUESTIONS_KEY, questions);
+      return true;
+    }
   } catch (error) {
     console.error('Redis Save Error:', error);
-    return false;
   }
+  return false;
 }
 
 export default async function handler(req, res) {
