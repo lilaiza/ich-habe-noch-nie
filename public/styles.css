@@ -1,0 +1,296 @@
+/* Siemens Colors */
+:root {
+    --siemens-petrol: #009999;
+    --siemens-dark: #003b3b;
+    --siemens-light: #e6f5f5;
+    --siemens-white: #ffffff;
+    --siemens-accent: #00cccc;
+    --christmas-red: #c41e3a;
+    --christmas-gold: #ffd700;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--siemens-petrol) 0%, var(--siemens-dark) 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: var(--siemens-dark);
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: var(--siemens-white);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--christmas-gold);
+    font-weight: 500;
+}
+
+.section {
+    background: var(--siemens-white);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Setup Section */
+.players-setup {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.player-input input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid var(--siemens-light);
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.player-input input:focus {
+    outline: none;
+    border-color: var(--siemens-petrol);
+    box-shadow: 0 0 0 3px var(--siemens-light);
+}
+
+/* Players Display */
+.players-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.player-card {
+    background: var(--siemens-light);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    transition: all 0.3s;
+    border: 3px solid var(--siemens-petrol);
+}
+
+.player-card.eliminated {
+    opacity: 0.5;
+    border-color: #cccccc;
+    background: #f0f0f0;
+}
+
+.player-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--siemens-dark);
+    margin-bottom: 15px;
+}
+
+.lives-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.life {
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.life:hover {
+    transform: scale(1.2);
+}
+
+.life.lost {
+    opacity: 0.3;
+    filter: grayscale(100%);
+}
+
+.player-status {
+    font-size: 0.9rem;
+    color: var(--siemens-petrol);
+    font-weight: 600;
+}
+
+.player-card.eliminated .player-status {
+    color: #999;
+}
+
+/* Question Card */
+.question-card {
+    background: linear-gradient(135deg, var(--siemens-petrol), var(--siemens-accent));
+    padding: 50px 30px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0, 153, 153, 0.3);
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#questionText {
+    font-size: 1.8rem;
+    color: var(--siemens-white);
+    text-align: center;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* Controls */
+.controls {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Buttons */
+.btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary {
+    background: var(--siemens-petrol);
+    color: var(--siemens-white);
+}
+
+.btn-primary:hover {
+    background: var(--siemens-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 153, 153, 0.4);
+}
+
+.btn-large {
+    padding: 20px 50px;
+    font-size: 1.3rem;
+}
+
+.btn-secondary {
+    background: var(--christmas-gold);
+    color: var(--siemens-dark);
+}
+
+.btn-secondary:hover {
+    background: #ffed4e;
+    transform: translateY(-2px);
+}
+
+.btn-reset {
+    background: #e0e0e0;
+    color: var(--siemens-dark);
+    width: 100%;
+    margin-top: 20px;
+}
+
+.btn-reset:hover {
+    background: #d0d0d0;
+}
+
+/* Add Question Section */
+.add-question-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid var(--siemens-light);
+}
+
+.add-question-section h3 {
+    color: var(--siemens-dark);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.add-question-form {
+    display: flex;
+    gap: 10px;
+}
+
+.add-question-form input {
+    flex: 1;
+    padding: 15px;
+    border: 2px solid var(--siemens-light);
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.add-question-form input:focus {
+    outline: none;
+    border-color: var(--siemens-petrol);
+}
+
+/* Game Over */
+.game-over-card {
+    text-align: center;
+}
+
+.game-over-card h2 {
+    color: var(--siemens-petrol);
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.winner-text {
+    font-size: 1.5rem;
+    color: var(--siemens-dark);
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    #questionText {
+        font-size: 1.4rem;
+    }
+
+    .players-setup {
+        grid-template-columns: 1fr;
+    }
+
+    .players-display {
+        grid-template-columns: 1fr;
+    }
+
+    .add-question-form {
+        flex-direction: column;
+    }
+}

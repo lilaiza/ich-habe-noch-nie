@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fragen verwalten - Siemens</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        siemens: {
+                            petrol: '#009999',
+                            dark: '#003b3b',
+                            light: '#e6f5f5',
+                            accent: '#00cccc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-siemens-petrol to-siemens-dark min-h-screen p-8">
+    
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-white text-5xl font-black mb-4">FRAGEN VERWALTEN</h1>
+            <a href="/index.html" class="text-yellow-300 hover:text-yellow-200 font-semibold">← Zurück zum Spiel</a>
+        </div>
+
+        <!-- Add Question Form -->
+        <div class="bg-white rounded-2xl p-8 shadow-2xl mb-8">
+            <h2 class="text-2xl font-black text-siemens-dark mb-6">Neue Frage hinzufügen</h2>
+            <div class="flex gap-4">
+                <input type="text" id="newQuestion" placeholder="Ich habe noch nie..." maxlength="200"
+                    class="flex-1 px-6 py-4 rounded-xl bg-gray-50 border-2 border-gray-200 focus:border-siemens-petrol focus:outline-none text-lg font-semibold transition-all">
+                <button onclick="addQuestion()" 
+                    class="bg-siemens-petrol text-white px-8 py-4 rounded-xl font-black text-lg hover:bg-siemens-accent transition-all">
+                    HINZUFÜGEN
+                </button>
+            </div>
+            <p id="addMessage" class="mt-4 text-sm font-semibold"></p>
+        </div>
+
+        <!-- Questions List -->
+        <div class="bg-white rounded-2xl p-8 shadow-2xl">
+            <h2 class="text-2xl font-black text-siemens-dark mb-6">Alle Fragen (<span id="questionCount">0</span>)</h2>
+            <div id="questionsList" class="space-y-3 max-h-[600px] overflow-y-auto">
+                <!-- Questions will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allQuestions = [];
+
+        async function loadQuestions() {
+            try {
+                const response = await fetch('/api/questions');
+                allQuestions = await response.json();
+                displayQuestions();
+            } catch (error) {
+                console.error('Fehler beim Laden der Fragen:', error);
+            }
+        }
+
+        function displayQuestions() {
+            const questionsList = document.getElementById('questionsList');
+            const questionCount = document.getElementById('questionCount');
+            
+            questionCount.textContent = allQuestions.length;
+            
+            if (allQuestions.length === 0) {
+                questionsList.innerHTML = '<p class="text-gray-400 text-center py-8">Keine Fragen vorhanden</p>';
+                return;
+            }
+
+            questionsList.innerHTML = allQuestions.map((q, index) => `
+                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                    <span class="text-sm font-bold text-gray-400 w-8">${index + 1}</span>
+                    <span class="flex-1 text-siemens-dark font-semibold">${q}</span>
+                    <button onclick="deleteQuestion(${index})" 
+                        class="text-red-500 hover:text-red-700 font-bold text-sm px-3 py-1 rounded hover:bg-red-50 transition-all">
+                        LÖSCHEN
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function addQuestion() {
+            const input = document.getElementById('newQuestion');
+            const message = document.getElementById('addMessage');
+            const questionText = input.value.trim();
+
+            if (!questionText) {
+                message.textContent = '⚠️ Bitte gib eine Frage ein!';
+                message.className = 'mt-4 text-sm font-semibold text-red-600';
+                return;
+            }
+
+            let fullQuestion = questionText;
+            if (!questionText.toLowerCase().startsWith('ich habe noch nie')) {
+                fullQuestion = 'Ich habe noch nie ' + questionText;
+            }
+
+            try {
+                const response = await fetch('/api/questions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: fullQuestion })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    message.textContent = '✓ Frage erfolgreich hinzugefügt!';
+                    message.className = 'mt-4 text-sm font-semibold text-green-600';
+                    await loadQuestions();
+                    setTimeout(() => message.textContent = '', 3000);
+                } else {
+                    message.textContent = '⚠️ Fehler beim Hinzufügen der Frage.';
+                    message.className = 'mt-4 text-sm font-semibold text-red-600';
+                }
+            } catch (error) {
+                message.textContent = '⚠️ Fehler beim Hinzufügen der Frage.';
+                message.className = 'mt-4 text-sm font-semibold text-red-600';
+            }
+        }
+
+        async function deleteQuestion(index) {
+            if (!confirm('Möchtest du diese Frage wirklich löschen?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/questions/${index}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    await loadQuestions();
+                } else {
+                    alert('Fehler beim Löschen der Frage.');
+                }
+            } catch (error) {
+                alert('Fehler beim Löschen der Frage.');
+            }
+        }
+
+        // Load questions on page load
+        loadQuestions();
+    </script>
+</body>
+</html>

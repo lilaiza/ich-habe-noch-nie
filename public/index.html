@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ich habe noch nie - Siemens</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        siemens: {
+                            petrol: '#009999',
+                            dark: '#003b3b',
+                            light: '#e6f5f5',
+                            accent: '#00cccc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-siemens-petrol to-siemens-dark min-h-screen flex items-center justify-center p-4">
+    
+    <!-- Setup Section -->
+    <div id="setupSection" class="w-full max-w-md">
+        <div class="text-center mb-12">
+            <h1 class="text-white text-4xl font-black mb-2">ICH HABE NOCH NIE</h1>
+            <p class="text-yellow-300 text-sm">Siemens Mobility Weihnachtsfeier 2025</p>
+        </div>
+        
+        <div class="space-y-3 mb-8">
+            <input type="text" id="player1" placeholder="Spieler 1" maxlength="15"
+                class="w-full px-6 py-4 rounded-xl bg-white/90 backdrop-blur border-2 border-transparent focus:border-siemens-accent focus:outline-none text-lg font-semibold transition-all">
+            <input type="text" id="player2" placeholder="Spieler 2" maxlength="15"
+                class="w-full px-6 py-4 rounded-xl bg-white/90 backdrop-blur border-2 border-transparent focus:border-siemens-accent focus:outline-none text-lg font-semibold transition-all">
+            <input type="text" id="player3" placeholder="Spieler 3 (optional)" maxlength="15"
+                class="w-full px-6 py-4 rounded-xl bg-white/80 backdrop-blur border-2 border-transparent focus:border-siemens-accent focus:outline-none text-lg font-semibold transition-all">
+            <input type="text" id="player4" placeholder="Spieler 4 (optional)" maxlength="15"
+                class="w-full px-6 py-4 rounded-xl bg-white/80 backdrop-blur border-2 border-transparent focus:border-siemens-accent focus:outline-none text-lg font-semibold transition-all">
+        </div>
+        
+        <button onclick="startGame()" 
+            class="w-full bg-white text-siemens-dark py-5 rounded-xl font-black text-xl hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-2xl">
+            START
+        </button>
+    </div>
+
+    <!-- Game Section -->
+    <div id="gameSection" class="hidden w-full max-w-4xl">
+        <!-- Players Strip -->
+        <div id="playersDisplay" class="flex justify-center gap-4 mb-8"></div>
+
+        <!-- Question Card -->
+        <div class="mb-8">
+            <div class="bg-white rounded-3xl p-12 shadow-2xl min-h-[300px] flex items-center justify-center">
+                <p id="questionText" class="text-siemens-dark text-3xl md:text-5xl font-black text-center leading-tight">
+                    Drücke den Button
+                </p>
+            </div>
+        </div>
+
+        <!-- Next Button -->
+        <button onclick="getNextQuestion()" 
+            class="w-full bg-white text-siemens-dark py-6 rounded-2xl font-black text-2xl hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-2xl mb-4">
+            NÄCHSTE FRAGE
+        </button>
+
+        <button onclick="resetGame()" 
+            class="w-full bg-white/20 text-white py-3 rounded-xl font-semibold text-sm hover:bg-white/30 transition-all">
+            Spiel zurücksetzen
+        </button>
+    </div>
+
+    <!-- Game Over Section -->
+    <div id="gameOverSection" class="hidden w-full max-w-2xl text-center">
+        <div class="bg-white rounded-3xl p-12 shadow-2xl">
+            <h2 class="text-6xl font-black text-siemens-petrol mb-6">GAME OVER</h2>
+            <p id="winnerText" class="text-2xl font-bold text-siemens-dark mb-8"></p>
+            <button onclick="resetGame()" 
+                class="bg-siemens-petrol text-white px-12 py-5 rounded-xl font-black text-xl hover:bg-siemens-accent transition-all transform hover:scale-105">
+                NEUES SPIEL
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
