@@ -81,6 +81,18 @@
 
     <!-- Game Section -->
     <div id="gameSection" class="hidden w-full max-w-4xl">
+        <!-- Instrucciones -->
+        <div class="bg-white/10 backdrop-blur rounded-2xl p-6 mb-6">
+            <h2 class="text-white text-xl font-black mb-3 text-center">🎮 SPIELREGELN</h2>
+            <ul class="text-white text-sm font-semibold space-y-2">
+                <li>• Lies die Frage laut vor</li>
+                <li>• Hast du es GEMACHT? → Platze einen Ballon! 🎈</li>
+                <li>• Verliere ein Leben im Spiel (klicke auf ein Herz ❤️)</li>
+                <li>• Wer zuerst keine Leben mehr hat, verliert</li>
+                <li>• Drücke LEERTASTE für die nächste Frage</li>
+            </ul>
+        </div>
+        
         <!-- Players Strip -->
         <div id="playersDisplay" class="flex justify-center gap-4 mb-8"></div>
 
@@ -115,10 +127,16 @@
     </div>
 
     <!-- Game Over Section -->
-    <div id="gameOverSection" class="hidden w-full max-w-2xl text-center">
+    <div id="gameOverSection" class="hidden w-full max-w-4xl text-center">
         <div class="bg-white rounded-3xl p-12 shadow-2xl">
-            <h2 class="text-6xl font-black text-siemens-petrol mb-6">GAME OVER</h2>
-            <p id="winnerText" class="text-2xl font-bold text-siemens-dark mb-8"></p>
+            <h2 class="text-6xl font-black text-siemens-petrol mb-8">🎊 SPIEL BEENDET! 🎊</h2>
+            
+            <!-- Podio -->
+            <div id="podiumSection" class="mb-8"></div>
+            
+            <!-- Resto de ranking -->
+            <div id="rankingSection" class="mb-8"></div>
+            
             <button onclick="resetGame()" 
                 class="bg-siemens-petrol text-white px-12 py-5 rounded-xl font-black text-xl hover:bg-siemens-accent transition-all transform hover:scale-105">
                 NEUES SPIEL

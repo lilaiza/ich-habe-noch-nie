@@ -188,8 +188,11 @@ function checkGameOver() {
     if (activePlayers.length <= 1 && gameActive) {
         gameActive = false;
         
-        // Trigger confetti!
-        if (activePlayers.length === 1) {
+        // Crear ranking (ordenar por vidas restantes, de mayor a menor)
+        const ranking = [...players].sort((a, b) => b.lives - a.lives);
+        
+        // Trigger confetti para el ganador
+        if (ranking[0].lives > 0) {
             confetti({
                 particleCount: 100,
                 spread: 70,
@@ -197,7 +200,6 @@ function checkGameOver() {
                 colors: ['#009999', '#00cccc', '#ffd700', '#ffffff']
             });
             
-            // Extra confetti burst
             setTimeout(() => {
                 confetti({
                     particleCount: 50,
@@ -214,16 +216,59 @@ function checkGameOver() {
             }, 250);
         }
         
+        // Mostrar podio y ranking
+        displayPodiumAndRanking(ranking);
+        
         // Show game over
         document.getElementById('gameSection').classList.add('hidden');
         document.getElementById('gameOverSection').classList.remove('hidden');
+    }
+}
 
-        const winnerText = document.getElementById('winnerText');
-        if (activePlayers.length === 1) {
-            winnerText.textContent = `${activePlayers[0].name} gewinnt! 🎉`;
-        } else {
-            winnerText.textContent = 'Unentschieden!';
-        }
+// Display podium and ranking
+function displayPodiumAndRanking(ranking) {
+    const podiumSection = document.getElementById('podiumSection');
+    const rankingSection = document.getElementById('rankingSection');
+    
+    // Top 3 - Podio
+    const top3 = ranking.slice(0, 3);
+    const medals = ['🥇', '🥈', '🥉'];
+    const positions = ['1. Platz', '2. Platz', '3. Platz'];
+    
+    podiumSection.innerHTML = `
+        <h3 class="text-2xl font-black text-siemens-dark mb-6">🏆 PODIUM 🏆</h3>
+        <div class="flex justify-center items-end gap-4 mb-8">
+            ${top3.map((player, index) => `
+                <div class="text-center ${index === 0 ? 'order-2' : index === 1 ? 'order-1' : 'order-3'}">
+                    <div class="text-6xl mb-2">${medals[index]}</div>
+                    <div class="bg-siemens-${index === 0 ? 'petrol' : 'light'} px-6 py-4 rounded-xl ${index === 0 ? 'scale-110' : ''}">
+                        <div class="font-black text-xl ${index === 0 ? 'text-white' : 'text-siemens-dark'}">${player.name}</div>
+                        <div class="text-sm ${index === 0 ? 'text-yellow-300' : 'text-gray-600'} font-semibold">${positions[index]}</div>
+                        <div class="text-sm ${index === 0 ? 'text-white' : 'text-siemens-dark'} mt-1">${player.lives} ❤️ übrig</div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    // Resto del ranking (4to en adelante)
+    const others = ranking.slice(3);
+    if (others.length > 0) {
+        rankingSection.innerHTML = `
+            <div class="border-t-2 border-gray-200 pt-6">
+                <h4 class="text-lg font-bold text-gray-600 mb-4">Weitere Platzierungen</h4>
+                <div class="space-y-2">
+                    ${others.map((player, index) => `
+                        <div class="bg-gray-100 px-4 py-2 rounded-lg flex justify-between items-center">
+                            <span class="font-bold text-gray-700">${index + 4}. ${player.name}</span>
+                            <span class="text-sm text-gray-600">${player.lives} ❤️</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    } else {
+        rankingSection.innerHTML = '';
     }
 }
 
