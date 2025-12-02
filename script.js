@@ -154,11 +154,8 @@ async function getNextQuestion() {
     currentQuestionIndex = originalIndex;
     questionHistory.push(originalIndex);
 
-    // Display question with flip animation
+    // Display question (sin animación)
     const questionEl = document.getElementById('questionText');
-    questionEl.classList.remove('flip-animation');
-    void questionEl.offsetWidth; // Trigger reflow
-    questionEl.classList.add('flip-animation');
     questionEl.textContent = selectedQuestion;
 }
 
@@ -175,11 +172,8 @@ function getPreviousQuestion() {
     const previousIndex = questionHistory[questionHistory.length - 1];
     currentQuestionIndex = previousIndex;
 
-    // Display previous question with flip animation
+    // Display previous question (sin animación)
     const questionEl = document.getElementById('questionText');
-    questionEl.classList.remove('flip-animation');
-    void questionEl.offsetWidth; // Trigger reflow
-    questionEl.classList.add('flip-animation');
     questionEl.textContent = allQuestions[previousIndex];
 }
 

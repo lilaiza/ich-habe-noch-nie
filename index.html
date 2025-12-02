@@ -27,23 +27,7 @@
             font-family: 'Inter', sans-serif;
         }
         
-        /* Flip animation for questions */
-        @keyframes flipIn {
-            from {
-                transform: perspective(400px) rotateY(90deg);
-                opacity: 0;
-            }
-            to {
-                transform: perspective(400px) rotateY(0deg);
-                opacity: 1;
-            }
-        }
-        
-        .flip-animation {
-            animation: flipIn 0.6s ease-out;
-        }
-        
-        /* Red flash animation - más visible */
+        /* Red flash animation */
         @keyframes flashRed {
             0% { 
                 background-color: transparent; 
@@ -61,21 +45,6 @@
         
         .flash-red {
             animation: flashRed 0.6s ease-in-out;
-        }
-        
-        /* Fijar altura mínima para evitar scroll durante animación */
-        .question-container {
-            min-height: 400px;
-            max-height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        #questionText {
-            max-height: 100%;
-            overflow-y: auto;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
