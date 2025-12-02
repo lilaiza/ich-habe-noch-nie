@@ -1,9 +1,14 @@
 // Vercel Serverless Function for questions API
-// Using Vercel Edge Config for persistent storage
+// Using Upstash Redis for persistent storage
 
-import { get } from '@vercel/edge-config';
+import { Redis } from '@upstash/redis';
 
-const QUESTIONS_KEY = 'questions';
+const redis = new Redis({
+  url: process.env.KV_REST_API_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
+
+const QUESTIONS_KEY = 'game_questions';
 
 // Default questions
 const defaultQuestions = [
@@ -47,29 +52,30 @@ const defaultQuestions = [
   "Ich habe noch nie bei einer Videokonferenz das Mikrofon vergessen auszuschalten"
 ];
 
-// Edge Config is read-only, so we'll use an in-memory store for user-added questions
-let userQuestions = [];
-
 async function getQuestions() {
   try {
-    // Try to get questions from Edge Config
-    const configQuestions = await get(QUESTIONS_KEY);
-    if (configQuestions && Array.isArray(configQuestions)) {
-      return [...configQuestions, ...userQuestions];
+    let questions = await redis.get(QUESTIONS_KEY);
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+      // Initialize with default questions
+      await redis.set(QUESTIONS_KEY, defaultQuestions);
+      questions = defaultQuestions;
     }
+    return questions;
   } catch (error) {
-    console.error('Edge Config Error:', error);
+    console.error('Redis Error:', error);
+    // Fallback to default questions if Redis is not available
+    return defaultQuestions;
   }
-  // Fallback to default questions + user questions
-  return [...defaultQuestions, ...userQuestions];
 }
 
 async function saveQuestions(questions) {
-  // Edge Config is read-only from the API
-  // We store user-added questions in memory
-  const baseQuestions = defaultQuestions.length;
-  userQuestions = questions.slice(baseQuestions);
-  return true;
+  try {
+    await redis.set(QUESTIONS_KEY, questions);
+    return true;
+  } catch (error) {
+    console.error('Redis Save Error:', error);
+    return false;
+  }
 }
 
 export default async function handler(req, res) {
