@@ -53,7 +53,37 @@
 
         <!-- Questions List -->
         <div class="bg-white rounded-2xl p-8 shadow-2xl">
-            <h2 class="text-2xl font-black text-siemens-dark mb-6">Alle Fragen (<span id="questionCount">0</span>)</h2>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-black text-siemens-dark">Alle Fragen (<span id="questionCount">0</span>)</h2>
+                <button id="toggleSelectMode" onclick="toggleSelectMode()" 
+                    class="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm hover:bg-gray-300 transition-all">
+                    AUSWÄHLEN
+                </button>
+            </div>
+            
+            <!-- Selection Controls (hidden by default) -->
+            <div id="selectionControls" class="hidden mb-4 p-4 bg-yellow-50 rounded-xl border-2 border-yellow-200">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" 
+                            class="w-5 h-5 accent-siemens-petrol cursor-pointer">
+                        <span class="font-bold text-siemens-dark">Alle auswählen</span>
+                    </label>
+                    <div class="flex items-center gap-3">
+                        <span id="selectedCount" class="font-semibold text-gray-600">0 ausgewählt</span>
+                        <button onclick="deleteSelected()" 
+                            class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            id="deleteSelectedBtn" disabled>
+                            AUSGEWÄHLTE LÖSCHEN
+                        </button>
+                        <button onclick="cancelSelection()" 
+                            class="bg-gray-400 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-gray-500 transition-all">
+                            ABBRECHEN
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
             <div id="questionsList" class="space-y-3 max-h-[600px] overflow-y-auto">
                 <!-- Questions will be loaded here -->
             </div>
@@ -62,6 +92,8 @@
 
     <script>
         let allQuestions = [];
+        let selectMode = false;
+        let selectedIndices = new Set();
 
         async function loadQuestions() {
             try {
@@ -70,6 +102,112 @@
                 displayQuestions();
             } catch (error) {
                 console.error('Fehler beim Laden der Fragen:', error);
+            }
+        }
+
+        function toggleSelectMode() {
+            selectMode = !selectMode;
+            selectedIndices.clear();
+            
+            const toggleBtn = document.getElementById('toggleSelectMode');
+            const selectionControls = document.getElementById('selectionControls');
+            const selectAllCheckbox = document.getElementById('selectAll');
+            
+            if (selectMode) {
+                toggleBtn.textContent = 'ABBRECHEN';
+                toggleBtn.className = 'bg-red-500 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-red-600 transition-all';
+                selectionControls.classList.remove('hidden');
+            } else {
+                toggleBtn.textContent = 'AUSWÄHLEN';
+                toggleBtn.className = 'bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm hover:bg-gray-300 transition-all';
+                selectionControls.classList.add('hidden');
+            }
+            
+            selectAllCheckbox.checked = false;
+            updateSelectedCount();
+            displayQuestions();
+        }
+
+        function cancelSelection() {
+            selectMode = false;
+            selectedIndices.clear();
+            
+            const toggleBtn = document.getElementById('toggleSelectMode');
+            const selectionControls = document.getElementById('selectionControls');
+            const selectAllCheckbox = document.getElementById('selectAll');
+            
+            toggleBtn.textContent = 'AUSWÄHLEN';
+            toggleBtn.className = 'bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-sm hover:bg-gray-300 transition-all';
+            selectionControls.classList.add('hidden');
+            selectAllCheckbox.checked = false;
+            
+            displayQuestions();
+        }
+
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            
+            if (selectAllCheckbox.checked) {
+                // Select all
+                allQuestions.forEach((_, index) => selectedIndices.add(index));
+            } else {
+                // Deselect all
+                selectedIndices.clear();
+            }
+            
+            updateSelectedCount();
+            displayQuestions();
+        }
+
+        function toggleQuestionSelection(index) {
+            if (selectedIndices.has(index)) {
+                selectedIndices.delete(index);
+            } else {
+                selectedIndices.add(index);
+            }
+            
+            // Update "select all" checkbox state
+            const selectAllCheckbox = document.getElementById('selectAll');
+            selectAllCheckbox.checked = selectedIndices.size === allQuestions.length;
+            
+            updateSelectedCount();
+            displayQuestions();
+        }
+
+        function updateSelectedCount() {
+            const countEl = document.getElementById('selectedCount');
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            const count = selectedIndices.size;
+            
+            countEl.textContent = `${count} ausgewählt`;
+            deleteBtn.disabled = count === 0;
+        }
+
+        async function deleteSelected() {
+            if (selectedIndices.size === 0) return;
+            
+            const count = selectedIndices.size;
+            if (!confirm(`Möchtest du wirklich ${count} Frage${count > 1 ? 'n' : ''} löschen?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/delete-multiple', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ indices: Array.from(selectedIndices) })
+                });
+
+                if (response.ok) {
+                    selectedIndices.clear();
+                    document.getElementById('selectAll').checked = false;
+                    updateSelectedCount();
+                    await loadQuestions();
+                } else {
+                    alert('Fehler beim Löschen der Fragen.');
+                }
+            } catch (error) {
+                alert('Fehler beim Löschen der Fragen.');
             }
         }
 
@@ -84,16 +222,28 @@
                 return;
             }
 
-            questionsList.innerHTML = allQuestions.map((q, index) => `
-                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
-                    <span class="text-sm font-bold text-gray-400 w-8">${index + 1}</span>
-                    <span class="flex-1 text-siemens-dark font-semibold">${q}</span>
-                    <button onclick="deleteQuestion(${index})" 
-                        class="text-red-500 hover:text-red-700 font-bold text-sm px-3 py-1 rounded hover:bg-red-50 transition-all">
-                        LÖSCHEN
-                    </button>
-                </div>
-            `).join('');
+            if (selectMode) {
+                questionsList.innerHTML = allQuestions.map((q, index) => `
+                    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all cursor-pointer ${selectedIndices.has(index) ? 'ring-2 ring-siemens-petrol bg-siemens-light' : ''}"
+                         onclick="toggleQuestionSelection(${index})">
+                        <input type="checkbox" ${selectedIndices.has(index) ? 'checked' : ''} 
+                            class="w-5 h-5 accent-siemens-petrol cursor-pointer pointer-events-none">
+                        <span class="text-sm font-bold text-gray-400 w-8">${index + 1}</span>
+                        <span class="flex-1 text-siemens-dark font-semibold">${q}</span>
+                    </div>
+                `).join('');
+            } else {
+                questionsList.innerHTML = allQuestions.map((q, index) => `
+                    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                        <span class="text-sm font-bold text-gray-400 w-8">${index + 1}</span>
+                        <span class="flex-1 text-siemens-dark font-semibold">${q}</span>
+                        <button onclick="deleteQuestion(${index})" 
+                            class="text-red-500 hover:text-red-700 font-bold text-sm px-3 py-1 rounded hover:bg-red-50 transition-all">
+                            LÖSCHEN
+                        </button>
+                    </div>
+                `).join('');
+            }
         }
 
         async function addQuestion() {
@@ -141,7 +291,7 @@
             }
 
             try {
-                const response = await fetch(`/api/questions/${index}`, {
+                const response = await fetch(`/api/delete-question?index=${index}`, {
                     method: 'DELETE'
                 });
 
