@@ -1,4 +1,6 @@
-import { createClient } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const QUESTIONS_KEY = 'game_questions';
 
 export default async function handler(req, res) {
   // CORS headers
@@ -15,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const kv = createClient({
+    const redis = new Redis({
       url: process.env.KV_REST_API_URL,
       token: process.env.KV_REST_API_TOKEN,
     });
@@ -27,7 +29,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid indices' });
     }
 
-    let questions = await kv.get('questions') || [];
+    let questions = await redis.get(QUESTIONS_KEY) || [];
     
     // Sort indices in descending order to delete from end first
     const sortedIndices = [...indices].sort((a, b) => b - a);
@@ -38,7 +40,7 @@ export default async function handler(req, res) {
       }
     }
     
-    await kv.set('questions', questions);
+    await redis.set(QUESTIONS_KEY, questions);
     
     return res.status(200).json({ success: true, deleted: indices.length });
   } catch (error) {
